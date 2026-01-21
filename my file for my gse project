@@ -1,0 +1,147 @@
+import csv
+import os
+
+# -------------------------------
+# 1. Variables & File Handling
+# -------------------------------
+
+def read_numeric_file(filename):
+    """Reads a CSV or text file containing numeric data."""
+    data = []
+    try:
+        if not os.path.exists(filename):
+            raise FileNotFoundError("File does not exist.")
+
+        with open(filename, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                for value in row:
+                    try:
+                        data.append(float(value.strip()))
+                    except ValueError:
+                        print(f"Invalid value skipped: {value}")
+        if not data:
+            raise ValueError("File is empty or contains no valid numeric values.")
+    except FileNotFoundError as e:
+        print(e)
+    except ValueError as e:
+        print(e)
+    return data
+
+
+# -------------------------------
+# 3. Functions
+# -------------------------------
+
+def calculate_total(dataset):
+    total = 0
+    for value in dataset:  # Loop through dataset
+        total += value
+    return total
+
+def calculate_average(dataset):
+    if len(dataset) == 0:
+        return 0
+    return calculate_total(dataset) / len(dataset)
+
+def calculate_minimum(dataset):
+    if not dataset:
+        return None
+    minimum = dataset[0]
+    for value in dataset:
+        if value < minimum:
+            minimum = value
+    return minimum
+
+def calculate_maximum(dataset):
+    if not dataset:
+        return None
+    maximum = dataset[0]
+    for value in dataset:
+        if value > maximum:
+            maximum = value
+    return maximum
+
+
+# -------------------------------
+# 6. Sets (Unique Categories)
+# -------------------------------
+
+def read_categories_file(filename):
+    """Reads categorical data and extracts unique values using a set."""
+    categories = set()
+    try:
+        if not os.path.exists(filename):
+            raise FileNotFoundError("Category file does not exist.")
+
+        with open(filename, 'r') as file:
+            for line in file:
+                categories.add(line.strip())
+        if not categories:
+            raise ValueError("Category file is empty.")
+    except Exception as e:
+        print(e)
+    return categories
+
+
+# -------------------------------
+# 7. Object-Oriented Programming
+# -------------------------------
+
+class DataSet:
+    def __init__(self, numeric_file, category_file, threshold=50):
+        self.numeric_file = numeric_file
+        self.category_file = category_file
+        self.data = []
+        self.categories = set()
+        self.threshold = threshold
+        self.stats = {}
+
+    def load_data(self):
+        self.data = read_numeric_file(self.numeric_file)
+        self.categories = read_categories_file(self.category_file)
+
+    def calculate_statistics(self):
+        if not self.data:
+            print("No numeric data available.")
+            return
+        self.stats['Total'] = calculate_total(self.data)
+        self.stats['Average'] = calculate_average(self.data)
+        self.stats['Minimum'] = calculate_minimum(self.data)
+        self.stats['Maximum'] = calculate_maximum(self.data)
+        self.stats['Unique Categories'] = len(self.categories)
+
+    def display_results(self):
+        print("\n--- Analysis Report ---")
+        for key, value in self.stats.items():
+            print(f"{key}: {value}")
+
+        # Conditional Statements
+        if self.stats['Average'] > self.threshold:
+            print("Performance: High Performance")
+        else:
+            print("Performance: Needs Improvement")
+
+    def save_report(self, filename="report.txt"):
+        with open(filename, 'w') as file:
+            file.write("--- Analysis Report ---\n")
+            for key, value in self.stats.items():
+                file.write(f"{key}: {value}\n")
+            if self.stats['Average'] > self.threshold:
+                file.write("Performance: High Performance\n")
+            else:
+                file.write("Performance: Needs Improvement\n")
+        print(f"\nReport saved to {filename}")
+
+
+# -------------------------------
+# 8. Running the Program
+# -------------------------------
+
+if __name__ == "__main__":
+    # Example usage: numeric data in "numbers.csv", categories in "categories.txt"
+    dataset = DataSet("numbers.csv", "categories.txt", threshold=60)
+    dataset.load_data()
+    dataset.calculate_statistics()
+    dataset.display_results()
+    dataset.save_report("analysis_report.txt").
